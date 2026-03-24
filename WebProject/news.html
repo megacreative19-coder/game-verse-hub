@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameVerse | Professional Feed</title>
+    <style>
+        /* Professional Styling */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: #080808; color: #d1d1d1; font-family: 'Segoe UI', Arial, sans-serif; }
+
+        header {
+            background-color: #000; padding: 15px 10%;
+            border-bottom: 2px solid #00f2ff;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .logo { font-size: 22px; font-weight: 900; color: #00f2ff; letter-spacing: 2px; text-transform: uppercase; }
+
+        .container { display: flex; max-width: 1200px; margin: 40px auto; padding: 0 20px; gap: 40px; }
+
+        /* Left Aligned Feed */
+        #news-feed { flex: 2.5; display: flex; flex-direction: column; gap: 25px; }
+
+        .news-card {
+            display: flex; background: #121212; border: 1px solid #222;
+            border-radius: 4px; overflow: hidden; text-decoration: none; color: inherit;
+            transition: transform 0.2s ease;
+        }
+        .news-card:hover { transform: translateX(5px); border-color: #00f2ff; }
+
+        .news-img { width: 260px; height: 160px; object-fit: cover; background-color: #222; }
+        .news-text { padding: 20px; display: flex; flex-direction: column; justify-content: center; }
+        .source-tag { color: #00f2ff; font-size: 10px; font-weight: bold; margin-bottom: 5px; }
+        h3 { font-size: 18px; color: #fff; line-height: 1.4; }
+
+        /* Sidebar */
+        .sidebar { flex: 1; padding: 25px; background: #0f0f0f; border-left: 1px solid #222; height: fit-content; }
+        #status-msg { color: #00f2ff; font-weight: bold; padding: 20px; }
+    </style>
+</head>
+<body>
+
+    <header><div class="logo">GameVerse // Intel</div></header>
+
+    <div class="container">
+        <main id="news-feed">
+            <div id="status-msg">SYNCING GLOBAL FREQUENCIES...</div>
+        </main>
+
+        <aside class="sidebar">
+            <h2 style="font-size: 14px; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px;">FEED STATUS</h2>
+            <p style="font-size: 12px; color: #666;">● Bridge: Active</p>
+            <p style="font-size: 12px; color: #666;">● Data: Live GNews</p>
+            <p style="font-size: 12px; color: #666; margin-top: 15px;">Click any intel report to view the full story on the original satellite uplink.</p>
+        </aside>
+    </div>
+
+    <script>
+        const GNEWS_KEY = 'b0c1134ccbf919877521ff920fa9c949'; 
+        
+        // This Proxy lets you view the news even without VS Code Live Server
+        const BRIDGE = "https://api.allorigins.win/get?url=";
+
+        async function getGamingNews() {
+            try {
+                const target = `https://gnews.io/api/v4/search?q=gaming+GTA6&lang=en&max=10&apikey=${GNEWS_KEY}`;
+                
+                // We wrap the URL in a bridge to bypass browser security
+                const response = await fetch(BRIDGE + encodeURIComponent(target));
+                const proxyData = await response.json();
+                const data = JSON.parse(proxyData.contents);
+
+                const feed = document.getElementById('news-feed');
+                
+                if (data.articles && data.articles.length > 0) {
+                    feed.innerHTML = ''; 
+                    data.articles.forEach(article => {
+                        feed.innerHTML += `
+                            <a href="${article.url}" target="_blank" class="news-card">
+                                <img src="${article.image}" class="news-img" alt="intel-img">
+                                <div class="news-text">
+                                    <span class="source-tag">${article.source.name}</span>
+                                    <h3>${article.title}</h3>
+                                </div>
+                            </a>`;
+                    });
+                } else {
+                    document.getElementById('status-msg').innerText = "NO NEWS FOUND AT THIS TIME.";
+                }
+
+            } catch (error) {
+                document.getElementById('status-msg').innerText = "BRIDGE FAILED. REFRESH PAGE.";
+            }
+        }
+
+        window.onload = getGamingNews;
+    </script>
+</body>
+</html>

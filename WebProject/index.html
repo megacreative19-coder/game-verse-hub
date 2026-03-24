@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameVerse | System Access</title>
+    <style>
+        :root {
+            --track-color: #00f2ff; 
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            height: 100vh;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            font-family: 'Segoe UI', sans-serif;
+            border: 3px solid var(--track-color);
+            transition: border-color 1.5s ease;
+            animation: colorCycle 10s infinite;
+        }
+
+        /* --- BACKGROUND ASSEMBLY --- */
+        .bg-grid {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            z-index: 0;
+            background: #000;
+        }
+
+        .tile {
+            background-image: url('login image.png');
+            background-size: 400% 400%; 
+            opacity: 0;
+            filter: brightness(0.5);
+            margin: -0.5px; 
+            outline: 1px solid transparent;
+        }
+
+        @keyframes assemble {
+            0% { transform: translate(var(--x), var(--y)) scale(2) rotate(var(--r)); opacity: 0; }
+            100% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        /* --- THE "BROKEN" NEON LOGIN BOX --- */
+        .main {
+            position: relative;
+            z-index: 10;
+            width: 90%;
+            max-width: 400px;
+            background: rgba(10, 10, 10, 0.95);
+            border-radius: 15px;
+            padding: 50px 40px;
+            color: white;
+            text-align: center;
+            
+            /* The Border with Malfunctioning Flicker Animation */
+            border: 2px solid var(--track-color);
+            box-shadow: 0 0 15px var(--track-color);
+            animation: boxEntrance 0.7s ease-out forwards 1.8s, 
+                       flickerNeon 4s linear infinite 2.5s, 
+                       colorCycle 10s infinite;
+
+            opacity: 0;
+            transform: scale(0.8);
+        }
+
+        /* The "Broken Light" Flicker Logic */
+        @keyframes flickerNeon {
+            0%, 18%, 22%, 25%, 53%, 57%, 100% { 
+                border-color: var(--track-color);
+                box-shadow: 0 0 20px var(--track-color);
+                opacity: 1;
+            }
+            20%, 24%, 55% { 
+                border-color: rgba(0, 242, 255, 0.1); /* Dims the border */
+                box-shadow: 0 0 2px transparent;
+                opacity: 0.8; /* Slight box dimming */
+            }
+        }
+
+        @keyframes boxEntrance {
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes colorCycle {
+            0%   { --track-color: #00f2ff; } 
+            25%  { --track-color: #ff4b7d; } 
+            50%  { --track-color: #9d4edd; } 
+            75%  { --track-color: #fb8500; } 
+            100% { --track-color: #00f2ff; }
+        }
+
+        .title { 
+            font-size: 34px; 
+            font-weight: 900; 
+            text-transform: uppercase; 
+            letter-spacing: 5px;
+            color: #fff;
+            text-shadow: 0 0 15px var(--track-color);
+            /* Title also flickers with the box */
+            animation: flickerText 4s linear infinite 2.5s;
+        }
+
+        @keyframes flickerText {
+            0%, 18%, 22%, 25%, 53%, 57%, 100% { text-shadow: 0 0 15px var(--track-color); }
+            20%, 24%, 55% { text-shadow: none; color: #444; }
+        }
+
+        .subtitle { 
+            font-size: 11px; 
+            margin-bottom: 35px; 
+            color: var(--track-color); 
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .login-box { display: flex; flex-direction: column; gap: 18px; }
+
+        input {
+            width: 100%; 
+            padding: 14px; 
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2); 
+            border-radius: 8px; 
+            color: #fff; 
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus { 
+            border-color: var(--track-color);
+            box-shadow: 0 0 10px var(--track-color);
+        }
+
+        button {
+            width: 100%; 
+            padding: 16px; 
+            background: var(--track-color); 
+            border: none; 
+            border-radius: 8px;
+            color: #000; 
+            font-weight: 900; 
+            cursor: pointer; 
+            text-transform: uppercase;
+            margin-top: 10px;
+            transition: 0.4s ease;
+        }
+
+        button:hover {
+            background: #fff;
+            box-shadow: 0 0 30px #fff;
+            transform: translateY(-3px);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="bg-grid" id="bgGrid"></div>
+
+    <div class="main">
+        <div class="title">GAMEVERSE</div>
+        <div class="subtitle">System Status: Warning - Unstable Link</div>
+        
+        <form class="login-box" id="loginForm">
+            <input type="text" placeholder="Username" required>
+            <input type="password" placeholder="Password" required>
+            <button type="submit">Establish Link</button>
+        </form>
+    </div>
+
+    <script>
+        const grid = document.getElementById('bgGrid');
+        for (let r = 0; r < 4; r++) {
+            for (let c = 0; c < 4; c++) {
+                const tile = document.createElement('div');
+                tile.className = 'tile';
+                tile.style.backgroundPosition = `${c * 33.33}% ${r * 33.33}%`;
+                const randomX = (Math.random() - 0.5) * 2000 + "px";
+                const randomY = (Math.random() - 0.5) * 2000 + "px";
+                const randomR = (Math.random() - 0.5) * 360 + "deg";
+                tile.style.setProperty('--x', randomX);
+                tile.style.setProperty('--y', randomY);
+                tile.style.setProperty('--r', randomR);
+                const delay = Math.random() * 1.2 + "s";
+                tile.style.animation = `assemble 1.5s cubic-bezier(0.25, 1, 0.5, 1) ${delay} forwards`;
+                grid.appendChild(tile);
+            }
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            window.location.href = "news.html";
+        });
+    </script>
+</body>
+</html>
